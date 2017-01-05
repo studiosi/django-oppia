@@ -6,6 +6,8 @@ For installing OppiaMobile server and Moodle block please refer to:
 .. toctree::
    :maxdepth: 1
 
+   architecture
+   roadmap
    install
    block_install
    upgrade
@@ -15,6 +17,7 @@ For installing OppiaMobile server and Moodle block please refer to:
    api
    utilities
    code_process
+   testing/index
    remote_device_admin
    changelog
    
@@ -42,5 +45,4 @@ about the platform, then please post on our `OppiaMobile Google Groups forum
    moodle-block/index
    style/index
    client/index
-   manage
    

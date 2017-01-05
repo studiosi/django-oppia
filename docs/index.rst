@@ -8,20 +8,22 @@ Welcome to the OppiaMobile documentation
 
 `OppiaMobile <http://oppia-mobile.org/>`_ is the mobile learning platform from
 `Digital Campus <http://digital-campus.org/>`_. This documentation details how 
-to set up your own server and how you may make basic customisations.
+to set up your own implementation and how you may make basic customisations.
 
 Contents:
 
 .. toctree::
    :maxdepth: 1
    
+   features
    dev/index
    author/author
-   permissions
+   permissions/index
    dashboard/index
    gamification
    viz/index
    training/index
+   author/adapt/index
    help
    acknowledgements
    

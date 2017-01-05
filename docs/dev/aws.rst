@@ -67,6 +67,9 @@ Please note that on this machine the django-oppia server is installed as a clone
 from GitHub (rather than using the pip install method described in the :ref:`standard 
 installation instructions <install>`). 
 
+.. warning:: 
+	In the main django settings, the server is set to run in debug mode. This will be fine when you are testing, but 
+	once you are ready to start providing the server live, you should change this setting to `DEBUG=False`
 
 Updating django-oppia server code from core
 --------------------------------------------
@@ -102,12 +105,12 @@ Environment information
 -----------------------
 The current version of the instance is running:
 
-* Ubuntu 14.04.2 LTS Server
+* Ubuntu 14.04 LTS Server
 * Apache 2.4
 * Mysql 5.5
-* Django 1.8.5
-* TastyPie 0.12.0
-* OppiaServer 0.9.2
+* Django 1.8.14
+* TastyPie 0.13.3
+* OppiaServer 0.9.6
 
 
 Email configuration

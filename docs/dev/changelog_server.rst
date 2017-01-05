@@ -1,14 +1,91 @@
 OppiaMobile Server Change Log
 ================================
 
+To see the upcoming feature developments and bug fixes, please refer to the `monthly milestones on GitHub <https://github.com/DigitalCampus/django-oppia/milestones>`_
+
+
+.. _serverv0.9.8:
+
+v0.9.8 - not yet released
+--------------------------------
+
+* 349: Management command for cleaning up old data - http://github.com/DigitalCampus/django-oppia/issues/issue/349
+* 219: Add better error messaging/reporting when upload fails - http://github.com/DigitalCampus/django-oppia/issues/issue/219
+* 22: Add unit tests for BadgesResource - http://github.com/DigitalCampus/django-oppia/issues/issue/22
+* 25: Add unit tests for CourseResource - http://github.com/DigitalCampus/django-oppia/issues/issue/25
+* 26: Add unit tests for PointsResource - http://github.com/DigitalCampus/django-oppia/issues/issue/26
+* 47: Add unit test for checking registration done through web form - http://github.com/DigitalCampus/django-oppia/issues/issue/47
+* 359: Add unit tests for permissions - http://github.com/DigitalCampus/django-oppia/issues/issue/359
+* 227: Check that the direct course upload via Moodle will reject any files larger than specified for the server - http://github.com/DigitalCampus/django-oppia/issues/issue/227
+* 310: Change quiz export method - https://github.com/DigitalCampus/django-oppia/issues/310
+
+
+.. _serverv0.9.7:
+
+v0.9.7 - Released 20 Sept 2016
+--------------------------------
+
+* 370: New points summary is ignoring non-course points - http://github.com/DigitalCampus/django-oppia/issues/issue/370
+* 365: Docs add info about permissions for publishing courses and app - http://github.com/DigitalCampus/django-oppia/issues/issue/365
+* 367: API course list - show user who published course - http://github.com/DigitalCampus/django-oppia/issues/issue/367
+* 310: Change quiz export method - http://github.com/DigitalCampus/django-oppia/issues/issue/310
+* 262: On course upload indicate if the digests have changed - http://github.com/DigitalCampus/django-oppia/issues/issue/262
+
+.. _serverv0.9.6:
+
+v0.9.6 - Released 26 Jul 2016
+--------------------------------
+
+* 177: Add previous/next options for courses - now getting to be long list - http://github.com/DigitalCampus/django-oppia/issues/issue/177
+* 306: Display course progress graphically - http://github.com/DigitalCampus/django-oppia/issues/issue/306
+* 327: On courses list page add option to filter by draft and archived courses - http://github.com/DigitalCampus/django-oppia/issues/issue/327
+* 337: On courses list page add option to edit the course - http://github.com/DigitalCampus/django-oppia/issues/issue/337
+* 371: Some users having very inflated number of points - http://github.com/DigitalCampus/django-oppia/issues/issue/371
+* 372: Add new summary tables to django admin pages - http://github.com/DigitalCampus/django-oppia/issues/issue/372
+* 373: Summary cron - oppia.models.DoesNotExist: Tracker matching query does not exist - http://github.com/DigitalCampus/django-oppia/issues/issue/373
+
+.. _serverv0.9.5:
+
+v0.9.5 - Released 8 Jul 2016
+--------------------------------
+
+.. note::
+ 	This release implements significant performance improvements on the server dashboard and has been achieved by 
+ 	caching a lot of the data needed to generate the activity graphs and progress. After updating to this version, you 
+ 	will need to check that a regular cron task is set up to run the `oppia/summary/cron.py` script. It may take some 
+ 	time (10 mins+) to run the first time if you have a lot of existing data, but after that each time the cron task is 
+ 	run should take only a few seconds. If the cron task is not set up to run, then you will not see any activity in the 
+ 	dashboard graphs.
+
+* 304: Deprecation warning for Django 1.8 - http://github.com/DigitalCampus/django-oppia/issues/issue/304
+* 269: Add display of media/videos to the course and user views - http://github.com/DigitalCampus/django-oppia/issues/issue/269
+* 331: Cron task gives error if `uploads/temp` dir doesn't exist - http://github.com/DigitalCampus/django-oppia/issues/issue/331
+* 323: Performance issues when loading dashboard with a lot of data - http://github.com/DigitalCampus/django-oppia/issues/issue/323
+* 243: Dashboard homepage and course pages very slow - http://github.com/DigitalCampus/django-oppia/issues/issue/243
 
 .. _serverv0.9.4:
 
-v0.9.4 - not yet released
+v0.9.4 - Released 2 May 2016
 --------------------------------
 
 * 289: Add default report for no badges (course completion rates) - http://github.com/DigitalCampus/django-oppia/issues/issue/289
 * 273: Refactor UserProfile model - http://github.com/DigitalCampus/django-oppia/issues/issue/273
+* 314: After logout, then logging in again the page redirects to logout again - http://github.com/DigitalCampus/django-oppia/issues/issue/314
+* 276: Add content development training course to docs - http://github.com/DigitalCampus/django-oppia/issues/issue/276
+* 313: Add architecture/workflow to docs - http://github.com/DigitalCampus/django-oppia/issues/issue/313
+* 305: Refactor usage of staticfiles - using django 1.8 method - http://github.com/DigitalCampus/django-oppia/issues/issue/305
+* 339: Quiz matching query does not exist - http://github.com/DigitalCampus/django-oppia/issues/issue/339
+* 303: Add option to reorder the columns in the tables - http://github.com/DigitalCampus/django-oppia/issues/issue/303
+* 284: Facility to export list of users for loading into the app - http://github.com/DigitalCampus/django-oppia/issues/issue/284
+* 207: Fix issue where activities may not have descriptions entered - http://github.com/DigitalCampus/django-oppia/issues/issue/207
+* 280: Improved error checking for video embed helper - http://github.com/DigitalCampus/django-oppia/issues/issue/280
+* 286: Implement the server side part of device admin API into the core - http://github.com/DigitalCampus/django-oppia/issues/issue/286
+* 284: Facility to export list of users for loading into the app - http://github.com/DigitalCampus/django-oppia/issues/issue/284
+* 300: Improve interface for managing cohorts - http://github.com/DigitalCampus/django-oppia/issues/issue/300
+* 302: Add option to search for users to get their activity - http://github.com/DigitalCampus/django-oppia/issues/issue/302
+
+.. note::
+ 	Make sure that django.contrib.staticfiles is included in your INSTALLED_APPS setting (for issue #305 above)
 
 .. _serverv0.9.3:
 
