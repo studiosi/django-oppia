@@ -16,8 +16,17 @@
 		    <ul class="nav navbar-nav navbar-right">
 		      {% if user.is_authenticated %}
 		        	<li><a href="{% url 'oppia_course' %}">{% trans 'menu_courses' %}</a></li>
+		        	<li><a href="{% url 'oppia_av_home' %}">{% trans 'Media' %}</a></li>
 		        	{% if user.userprofile.get_can_upload %}
-		        		<li><a href="{% url 'oppia_upload' %}">{% trans 'menu_upload' %}</a></li>
+		        		<li class="dropdown"><a href="#" data-toggle="dropdown" class="dropdown-toggle">{% trans 'Upload' %}<b class="caret"></b></a>
+		        		<ul class="dropdown-menu">
+		        			<li><a href="{% url 'oppia_upload' %}">{% trans 'Course' %}</a></li>
+		        			<li><a href="{% url 'oppia_av_upload' %}">{% trans 'Media' %}</a></li>
+		        			<li><a href="{% url 'oppia_media_embed_helper' %}">{% trans 'Media Embed Helper' %}</a></li>
+		        			{% if user.is_staff %}
+		        				<li><a href="{% url 'oppia_activitylog_upload' %}">{% trans 'Activity Log' %}</a></li>
+		        			{% endif %}
+		        		</ul>
 		        	{% endif %}
 		      {% endif %}
 		       {% if user.is_staff %}
@@ -51,7 +60,7 @@
 		       		<ul class="dropdown-menu">
 		       			<li><a href="{% url 'profile_user_activity'  user.id %}">{% trans 'Scorecard' %}</a></li>
 		            	<li><a href="{% url 'profile_edit' %}">{% trans 'Edit Profile' %}</a></li>
-		            	<li><a href="{% url 'django.contrib.auth.views.logout' %}">{% trans 'Logout' %}</a></li>
+		            	<li><a href="{% url 'profile_logout' %}">{% trans 'Logout' %}</a></li>
 		            </ul>
 		            </li>
 		        {% else %}

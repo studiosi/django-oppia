@@ -5,7 +5,7 @@ Installation
 
 To install and run the OppiaMobile server, you will need to be familiar with how
 to set up, install and maintain Django applications. To learn how to get started 
-with Django, visit http://gettingstartedwithdjango.com/.
+with Django, visit http://www.gettingstartedwithdjango.com/.
 
 
 * Create a virtual environment for python. We recommend that 
@@ -39,14 +39,14 @@ with Django, visit http://gettingstartedwithdjango.com/.
     
     * Add the following code::
 	
-		from oppia import local_settings
-		local_settings.modify(globals())
+		from oppia import local_settings_live
+		local_settings_live.modify(globals())
 		
     * Ensure you have the following standard Django settings configured:
 	
-		* `LOGIN_REDIRECT_URL <https://docs.djangoproject.com/en/1.5/ref/settings/#login-redirect-url>`_
-		* `SERVER_EMAIL <https://docs.djangoproject.com/en/1.5/ref/settings/#login-url>`_
-		* `LOGIN_URL <https://docs.djangoproject.com/en/1.5/ref/settings/#std:setting-SERVER_EMAIL>`_
+		* `LOGIN_REDIRECT_URL <https://docs.djangoproject.com/en/1.11/ref/settings/#login-redirect-url>`_
+		* `SERVER_EMAIL <https://docs.djangoproject.com/en/1.11/ref/settings/#server-email>`_
+		* `LOGIN_URL <https://docs.djangoproject.com/en/1.11/ref/settings/#login-url>`_
 		
     * Add a new setting ``COURSE_UPLOAD_DIR``, this should a read/writable 
 	  directory by your webserver user, for example::

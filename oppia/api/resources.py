@@ -1,43 +1,39 @@
 # oppia/api/resources.py
-import datetime
 import json
 import os
 import shutil
 import zipfile
-
-from django.conf.urls import url
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.conf import settings
-from django.core import serializers
-from django.core.mail import send_mail
 from wsgiref.util import FileWrapper
-from django.core.files.base import ContentFile
-from django.utils.six import b
+import datetime
 
+from django.conf import settings
+from django.conf.urls import url
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.db.models import Sum
-from django.http import HttpRequest, HttpResponse ,Http404
+from django.http import HttpResponse, Http404
+from django.utils import dateparse
 from django.utils.translation import ugettext_lazy as _
-
-from tastypie import fields, bundle, http
-from tastypie.authentication import Authentication,ApiKeyAuthentication
+from tastypie import fields
+from tastypie.authentication import Authentication, ApiKeyAuthentication
 from tastypie.authorization import Authorization, ReadOnlyAuthorization
-from tastypie.exceptions import NotFound, BadRequest, InvalidFilterError 
-from tastypie.exceptions import Unauthorized, HydrationError, InvalidSortError, ImmediateHttpResponse
+from tastypie.exceptions import BadRequest
 from tastypie.models import ApiKey
-from tastypie.resources import ModelResource, Resource, convert_post_to_patch, dict_strip_unicode_keys
-from tastypie.serializers import Serializer
-from tastypie.utils import trailing_slash
+from tastypie.resources import ModelResource, convert_post_to_patch, dict_strip_unicode_keys
+from tastypie.utils import trailing_slash, timezone
 from tastypie.validation import Validation
 
 from oppia.api.serializers import PrettyJSONSerializer, CourseJSONSerializer, UserJSONSerializer
-from oppia.models import Activity, Section, Tracker, Course, Media, Schedule, ActivitySchedule, Cohort, Tag, CourseTag
+from oppia.models import Activity, Tracker, Course, Media, Schedule, ActivitySchedule, Cohort, Tag, CourseTag
 from oppia.models import Points, Award, Badge
 from oppia.profile.forms import RegisterForm
 from oppia.profile.models import UserProfile
 from oppia.signals import course_downloaded
- 
+from oppia.utils.deprecation import RemovedInOppia0110Warning
+
+
 class UserResource(ModelResource):
     ''' 
     For user login
@@ -283,13 +279,24 @@ class ResetPasswordResource(ModelResource):
 
 class TrackerValidation(Validation):
     def is_valid(self, bundle, request=None):
-
+        
         errors = {}
         if bundle.data and 'type' in bundle.data and bundle.data['type'] == 'search':
             # if the tracker is a search, we check that the needed values are present
             json_data = json.loads(bundle.data['data'])
             if not 'query' in json_data or not 'results_count' in json_data:
-                errors['search'] = 'You must include the search term and the results count!'
+                errors['search'] = 'You must include the search term and the results count'
+                
+        # check this tracker hasn't already been submitted (based on the UUID)
+        try:
+            json_data = json.loads(bundle.data['data'])
+            if json_data['uuid']:
+                bundle.obj.uuid = json_data['uuid']
+                uuids = Tracker.objects.filter(uuid=bundle.obj.uuid)
+                if uuids.count() > 0:
+                    errors['uuid'] = 'This UUID has already been submitted'
+        except:
+            pass
 
         return errors
 
@@ -318,6 +325,7 @@ class TrackerResource(ModelResource):
         validation = TrackerValidation()
 
     def hydrate(self, bundle, request=None):
+        
         # remove any id if this is submitted - otherwise it may overwrite existing tracker item
         if 'id' in bundle.data:
             del bundle.obj.id
@@ -330,7 +338,7 @@ class TrackerResource(ModelResource):
             bundle.obj.course = None
             bundle.obj.type = "search"
             return bundle
-
+ 
         # find out the course & activity type from the digest
         try:
             if 'course' in bundle.data:
@@ -353,7 +361,7 @@ class TrackerResource(ModelResource):
             bundle.obj.type = ''
             bundle.obj.activity_title = ''
             bundle.obj.section_title = ''
-        
+            
         try:
             if 'course' in bundle.data:
                 media_objs = Media.objects.filter(digest=bundle.data['digest'],course__shortname=bundle.data['course'])[:1]
@@ -366,37 +374,36 @@ class TrackerResource(ModelResource):
         except Media.DoesNotExist:
             pass
         
-        # this try/except block is temporary until everyone is using client app v17
         try:
             json_data = json.loads(bundle.data['data'])
-            if json_data['activity'] == "completed":
-                bundle.obj.completed = True
-        except:
-            bundle.obj.completed = False
-        
-        try:
-            json_data = json.loads(bundle.data['data'])
-            if json_data['timetaken']:
+            if 'timetaken' in json_data:
                 bundle.obj.time_taken = json_data['timetaken']
-        except:
-            pass
-        
-        try:
-            json_data = json.loads(bundle.data['data'])
-            if json_data['uuid']:
+            if 'uuid' in json_data:
                 bundle.obj.uuid = json_data['uuid']
-        except:
-            pass
-        
-        try:
-            json_data = json.loads(bundle.data['data'])
-            if json_data['lang']:
+            if 'lang' in json_data:
                 bundle.obj.lang = json_data['lang']
-        except:
+        except ValueError:
+            pass
+        except KeyError:
             pass
         
+        if 'points' in bundle.data:
+            bundle.obj.points = bundle.data['points']
+        
+        if 'event' in bundle.data:
+            bundle.obj.event = bundle.data['event']
+            
         return bundle 
-    
+
+    def hydrate_tracker_date(self, bundle, request = None, **kwargs):
+        # Fix tracker date if date submitted is in the future
+        if 'tracker_date' in bundle.data:
+            tracker_date = dateparse.parse_datetime(bundle.data['tracker_date'])
+            if tracker_date > datetime.datetime.now():
+                bundle.data['tracker_date'] = timezone.now()
+
+        return bundle
+
     def dehydrate_points(self,bundle):
         points = Points.get_userscore(bundle.request.user)
         return points
@@ -427,7 +434,19 @@ class TrackerResource(ModelResource):
             bundle.request.user = request.user
             bundle.request.META['REMOTE_ADDR'] = request.META.get('REMOTE_ADDR','0.0.0.0')
             bundle.request.META['HTTP_USER_AGENT'] = request.META.get('HTTP_USER_AGENT','unknown')
-            self.obj_create(bundle, request=request)
+            # check UUID not already submitted
+            if 'data' in bundle.data:
+                json_data = json.loads(bundle.data['data'])
+                if 'uuid' in json_data:
+                    uuids = Tracker.objects.filter(uuid=json_data['uuid'])
+                    if uuids.count() == 0:
+                        self.obj_create(bundle, request=request)
+                else:
+                    self.obj_create(bundle, request=request)    
+            else:
+                self.obj_create(bundle, request=request)
+            
+            
         response_data = {'points': self.dehydrate_points(bundle),
                          'badges':self.dehydrate_badges(bundle),
                          'scoring':self.dehydrate_scoring(bundle),
@@ -492,21 +511,24 @@ class CourseResource(ModelResource):
             if cohort.schedule:
                 schedule = cohort.schedule
         
-        # add scheduling XML file     
-        if schedule or has_completed_trackers:
-            file_to_download = settings.COURSE_UPLOAD_DIR +"temp/"+ str(request.user.id) + "-" + course.filename
-            shutil.copy2(course.getAbsPath(), file_to_download)
-            zip = zipfile.ZipFile(file_to_download,'a')
-            if schedule:
-                zip.writestr(course.shortname +"/schedule.xml",schedule.to_xml_string())
-            if has_completed_trackers:
-                zip.writestr(course.shortname +"/tracker.xml",Tracker.to_xml_string(course,request.user))
-            zip.close()
-
-        wrapper = FileWrapper(file(file_to_download))
-        response = HttpResponse(wrapper, content_type='application/zip')
-        response['Content-Length'] = os.path.getsize(file_to_download)
-        response['Content-Disposition'] = 'attachment; filename="%s"' %(course.filename)
+        try:
+            # add scheduling XML file     
+            if schedule or has_completed_trackers:
+                file_to_download = settings.COURSE_UPLOAD_DIR +"temp/"+ str(request.user.id) + "-" + course.filename
+                shutil.copy2(course.getAbsPath(), file_to_download)
+                zip = zipfile.ZipFile(file_to_download,'a')
+                if schedule:
+                    zip.writestr(course.shortname +"/schedule.xml",schedule.to_xml_string())
+                if has_completed_trackers:
+                    zip.writestr(course.shortname +"/tracker.xml",Tracker.to_xml_string(course,request.user))
+                zip.close()
+    
+            wrapper = FileWrapper(file(file_to_download))
+            response = HttpResponse(wrapper, content_type='application/zip')
+            response['Content-Length'] = os.path.getsize(file_to_download)
+            response['Content-Disposition'] = 'attachment; filename="%s"' %(course.filename)
+        except IOError:
+            raise Http404(_(u"Course not found"))
         
         # Add to tracker
         tracker = Tracker()

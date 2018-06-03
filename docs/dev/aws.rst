@@ -30,6 +30,13 @@ access via your web browser and log into the server using SSH. It is beyond the
 scope of this guide to give the full information about how to connect and 
 configure your AWS account instances.
 
+Allowed Hosts
+---------------
+
+To make your AWS machine accessible, you will need to add the IP address (and/or domain name) to ALLOWED_HOSTS in 
+``/home/oppiamobile/oppia_web/oppia_web/settings.py``. This is due to an update in Django 1.8.16, see: 
+https://docs.djangoproject.com/en/1.11/releases/1.8.16/
+
 Passwords
 ----------
 When you install and launch your instance it is set up with a default set of 
@@ -75,22 +82,8 @@ Updating django-oppia server code from core
 --------------------------------------------
 The code is based on a 'point-in-time' version of the OppiaMobile server code, 
 so once you have set up your instance, you should try to keep it up to date. 
-Fortunately it's straightforward to update to the latest version:
 
-* Go into the ``/home/oppiamobile/django-oppia/`` directory
-* Run ``sudo git pull``
-
-This will update your server to the latest version of the django-oppia server.
- 
-If any updates were made, firstly activiate the virtual environment. From the 
-``/home/oppiamobile`` directory run:
-
-* ``source env/bin/activiate``
-
-Then, from the ``/home/oppiamobile/oppia_web`` directory, run:
-
-* ``python manage.py migrate``
-* ``python manage.py collectstatic``
+:ref:`View the docs on how to upgrade <upgrade_server>`
 
 Creating your own version of django-oppia
 -----------------------------------------
@@ -105,12 +98,12 @@ Environment information
 -----------------------
 The current version of the instance is running:
 
-* Ubuntu 14.04 LTS Server
+* Ubuntu 16.04 LTS Server
 * Apache 2.4
-* Mysql 5.5
-* Django 1.8.14
-* TastyPie 0.13.3
-* OppiaServer 0.9.6
+* Mysql 5.7
+* Django 1.11.6
+* TastyPie 0.14.0
+* OppiaServer 0.10.0
 
 
 Email configuration

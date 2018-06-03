@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load display_functions %}
+{% load thumbnail %}
+
+<tr>
+	<td>
+		{% thumbnail media.uploaded_media.get_default_image.image "220x150" crop="center" as im %}
+			<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+		{% empty %}
+	  			<p>No image</p>
+		{% endthumbnail %}
+	</td>
+	<td><a href="{% url 'oppia_av_view' media.uploaded_media.id %}">{{ media.uploaded_media.filename }}</a></td>
+	<td><code>{{ media.embed_code }}</code></td>
+</tr>
