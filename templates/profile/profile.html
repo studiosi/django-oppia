@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load display_functions %}
+
+{% block extra_head_title %}
+	{% trans 'Profile' %}
+{% endblock extra_head_title %}
+
+
+{% block header %}
+<div class="jumbotron mb-4 ">
+	<h3>Profile</h3>
+</div>
+{% endblock header %}
+
+{% block content %}
+
+{% include "includes/messages.html" %}	
+
+{% crispy form %}
+
+<div style="clear:both"></div>
+<h3>{% trans 'Export data' %}</h3>
+
+<a href="{% url 'profile_export_mydata' 'activity' %}" class="btn btn-default" target="_blank">{% trans 'Export Course Activity' %}</a>
+<a href="{% url 'profile_export_mydata' 'quiz' %}" class="btn btn-default" target="_blank">{% trans 'Export Quiz Attempts' %}</a>
+<a href="{% url 'profile_export_mydata' 'points' %}" class="btn btn-default" target="_blank">{% trans 'Export Points' %}</a>
+<a href="{% url 'profile_export_mydata' 'badges' %}" class="btn btn-default" target="_blank">{% trans 'Export Badges' %}</a>
+
+<div style="clear:both"></div>
+<h3>{% trans 'Delete Account' %}</h3>
+
+<a href="{% url 'profile_delete_account' %}" class="btn btn-default">{% trans 'Delete Account' %}</a>
+
+{% endblock %}
